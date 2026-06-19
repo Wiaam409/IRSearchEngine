@@ -1,0 +1,12 @@
+{
+    "sparse": [
+        {"doc_id": "doc1", "score": 15.5},
+        {"doc_id": "doc2", "score": 10.2},
+        {"doc_id": "doc3", "score": 5.1}
+    ],
+    "dense": [
+        {"doc_id": "doc3", "score": 0.95},
+        {"doc_id": "doc1", "score": 0.85},
+        {"doc_id": "doc4", "score": 0.75}
+    ]
+}

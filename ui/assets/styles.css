@@ -1,0 +1,152 @@
+/* Modern Enterprise UI styling */
+:root {
+    --primary-color: #005A9E; /* Azure-like blue */
+    --secondary-color: #F3F2F1;
+    --text-main: #201F1E;
+    --text-muted: #605E5C;
+    --bg-main: #FAFAFA;
+    --bg-card: #FFFFFF;
+    --border-color: #EDEBE9;
+    --success-color: #107C10;
+    --danger-color: #D13438;
+}
+
+[data-theme="dark"] {
+    --primary-color: #4FB2FF;
+    --secondary-color: #292827;
+    --text-main: #F3F2F1;
+    --text-muted: #A19F9D;
+    --bg-main: #11100F;
+    --bg-card: #201F1E;
+    --border-color: #323130;
+}
+
+/* Global App Styling */
+.stApp {
+    background-color: var(--bg-main) !important;
+}
+
+/* RTL Support for Arabic */
+.rtl-text {
+    direction: rtl;
+    text-align: right;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Result Cards */
+.result-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.result-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.result-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+.result-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.result-card-body {
+    font-size: 0.95rem;
+    color: var(--text-main);
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.result-card-footer {
+    display: flex;
+    gap: 10px;
+    font-size: 0.85rem;
+}
+
+/* Badges */
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 0.8rem;
+    display: inline-block;
+}
+
+.badge-score {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.badge-source {
+    background-color: var(--secondary-color);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+}
+
+.badge-rank {
+    background-color: var(--text-muted);
+    color: white;
+}
+
+/* Hide default streamlit elements to clean up UI */
+header[data-testid="stHeader"] {
+    display: none;
+}
+footer {
+    display: none !important;
+}
+
+/* Top Navigation Bar Simulation */
+.top-nav {
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: -4rem -4rem 2rem -4rem; /* Offset Streamlit's default padding */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.top-nav-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--danger-color);
+}
+
+.status-dot.healthy {
+    background-color: var(--success-color);
+}
