@@ -30,15 +30,14 @@ class EvalAdapter(IRetrievalModelAdapter):
         return [(getattr(doc, "doc_id", doc.get("doc_id", "") if isinstance(doc, dict) else ""), 
                  getattr(doc, "score", doc.get("score", 0.0) if isinstance(doc, dict) else 0.0)) for doc in docs]
 
-def run_evaluation(limit=0):
+def run_evaluation():
     print(f"Running evaluation...")
     adapter = BeirAdapter()
     
     # Load queries
     queries = {}
     print("Loading queries...")
-    for i, q in enumerate(tqdm(adapter.load_queries(), desc="Loading queries")):
-        if limit != 0 and i >= limit: break
+    for q in tqdm(adapter.load_queries(), desc="Loading queries"):
         queries[q.query_id] = q.text
         
     # Load qrels
@@ -47,6 +46,10 @@ def run_evaluation(limit=0):
     for qrel in tqdm(adapter.load_qrels(), desc="Loading qrels"):
         if qrel.query_id in queries:
             qrels.append(RelevanceJudgment(qrel.query_id, qrel.doc_id, qrel.relevance))
+            
+    print(f"Total qrels loaded: {len(qrels)}")
+    print(f"Total queries used: {len(queries)}")
+    print(f"All qrels queries used: {len(set(q.query_id for q in qrels)) == len(queries)}")
             
     eval_service = get_evaluation_service()
     
@@ -81,6 +84,12 @@ def run_evaluation(limit=0):
         results["Precision@10"].append(round(metrics.get("P@10", 0.0), 4))
         results["MAP"].append(round(metrics.get("MAP", 0.0), 4))
         
+    results["metadata"] = {
+        "total_qrels_loaded": len(qrels),
+        "total_queries_used": len(queries),
+        "all_qrels_queries_used": len(set(q.query_id for q in qrels)) == len(queries)
+    }
+        
     out_dir = "datasets/cache"
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, "evaluation_metrics.json")
@@ -92,6 +101,5 @@ def run_evaluation(limit=0):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--limit", type=int, default=0)
     args = parser.parse_args()
-    run_evaluation(args.limit)
+    run_evaluation()
