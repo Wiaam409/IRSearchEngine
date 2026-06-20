@@ -21,7 +21,7 @@ from services.embeddings_service.infrastructure.vector_index import InMemoryVect
 from services.embeddings_service.application.use_cases import DenseRetrieveUseCase
 
 from services.query_refinement_service.infrastructure.file_synonym_provider import FileBasedSynonymProvider
-from services.query_refinement_service.infrastructure.spell_checkers import NoOpSpellChecker
+from services.query_refinement_service.infrastructure.spell_checkers import NoOpSpellChecker, SimpleSpellChecker
 from services.query_refinement_service.application.use_cases import RefineQueryUseCase
 
 from services.hybrid_service.infrastructure.adapters import RetrieverAdapter
@@ -60,10 +60,37 @@ def get_dense_service() -> DenseRetrieveUseCase:
     return DenseRetrieveUseCase(model, index)
 
 @lru_cache()
+def get_spell_checker() -> SimpleSpellChecker:
+    service = get_tfidf_service()
+    vocab = set(service.reader.idf_cache.keys()) if hasattr(service, 'reader') and hasattr(service.reader, 'idf_cache') else set()
+    return SimpleSpellChecker(dictionary=vocab, max_distance=1)
+
+@lru_cache()
 def get_refinement_service() -> RefineQueryUseCase:
     synonym_provider = FileBasedSynonymProvider(settings.synonyms_path)
-    spell_checker = NoOpSpellChecker()
+    spell_checker = get_spell_checker()
     return RefineQueryUseCase(spell_checker, synonym_provider)
+
+@lru_cache()
+def get_llm_pipeline():
+    try:
+        from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+        import torch
+        
+        model_name = "google/flan-t5-base"
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+        
+        def generator(prompt, max_new_tokens=50):
+            inputs = tokenizer(prompt, return_tensors="pt", truncation=True)
+            outputs = model.generate(**inputs, max_new_tokens=max_new_tokens)
+            answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
+            return [{"generated_text": answer}]
+            
+        return generator
+    except Exception as e:
+        print(f"Failed to load LLM: {e}")
+        return None
 
 @lru_cache()
 def get_evaluation_service() -> EvaluateModelUseCase:

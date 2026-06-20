@@ -54,7 +54,7 @@ def render_sidebar():
         
         # Retrieval Model
         st.subheader("Retrieval Model")
-        methods = ["TF-IDF", "BM25", "Embeddings", "Hybrid Parallel", "Hybrid Serial"]
+        methods = ["TF-IDF", "BM25", "Embeddings", "Hybrid Parallel", "Hybrid Serial", "RAG"]
         new_method = st.selectbox("Method", methods, index=methods.index(get_setting("method")))
         if new_method != get_setting("method"):
             update_setting("method", new_method)

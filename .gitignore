@@ -26,3 +26,7 @@ env/
 *.njsproj
 *.sln
 *.swp
+~$_Project_Report.docx
+IR_Project_Report.docx
+pandoc-3.10-windows-x86_64.msi
+extra_files/Lecture_5.ipynb

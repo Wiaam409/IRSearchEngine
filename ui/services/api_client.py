@@ -4,7 +4,7 @@ import streamlit as st
 class APIClient:
     def __init__(self, base_url: str):
         self.base_url = base_url.rstrip("/")
-        self.timeout = 30
+        self.timeout = 300  # Increased to 5 minutes to allow downloading the RAG model and building doc store
 
     def _post(self, endpoint: str, payload: dict):
         url = f"{self.base_url}/{endpoint}"
@@ -12,6 +12,13 @@ class APIClient:
             response = requests.post(url, json=payload, timeout=self.timeout)
             response.raise_for_status()
             return response.json()
+        except requests.exceptions.HTTPError as e:
+            try:
+                err_data = e.response.json()
+                st.error(f"API Backend Error: {err_data.get('detail', str(e))}")
+            except:
+                st.error(f"API Error: {str(e)}")
+            return None
         except requests.exceptions.ConnectionError:
             st.error(f"Cannot connect to backend at {self.base_url}. Is the API running?")
             return None
@@ -68,3 +75,7 @@ class APIClient:
             "candidate_multiplier": candidate_multiplier
         }
         return self._post("search/hybrid/serial", payload)
+
+    def search_rag(self, query: str, top_k: int) -> dict:
+        payload = {"query": query, "top_k": top_k}
+        return self._post("search/rag", payload)

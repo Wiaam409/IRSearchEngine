@@ -30,6 +30,23 @@ class EvalAdapter(IRetrievalModelAdapter):
         return [(getattr(doc, "doc_id", doc.get("doc_id", "") if isinstance(doc, dict) else ""), 
                  getattr(doc, "score", doc.get("score", 0.0) if isinstance(doc, dict) else 0.0)) for doc in docs]
 
+class RefinedAdapter(IRetrievalModelAdapter):
+    def __init__(self, use_case, refinement_service):
+        self.use_case = use_case
+        self.refine = refinement_service
+        
+    def get_ranked_docs(self, query_id: str, query_text: str, top_k: int):
+        refined = self.refine.refine(query_text)
+        new_q = refined.refined_query if hasattr(refined, 'refined_query') else refined
+        if hasattr(self.use_case, 'retrieve'):
+            result = self.use_case.retrieve(new_q, top_k=top_k)
+        else:
+            result = self.use_case.rank(new_q, top_k=top_k)
+            
+        docs = result if isinstance(result, list) else getattr(result, "results", [])
+        return [(getattr(doc, "doc_id", doc.get("doc_id", "") if isinstance(doc, dict) else ""), 
+                 getattr(doc, "score", doc.get("score", 0.0) if isinstance(doc, dict) else 0.0)) for doc in docs]
+
 def run_evaluation():
     print(f"Running evaluation...")
     adapter = BeirAdapter()
@@ -57,6 +74,7 @@ def run_evaluation():
     models = {
         "TF-IDF": EvalAdapter(get_tfidf_service()),
         "BM25": EvalAdapter(get_bm25_service()),
+        "BM25 (Refined)": RefinedAdapter(get_bm25_service(), get_refinement_service()),
         "Embeddings": EvalAdapter(get_dense_service()),
         "Hybrid (RRF)": EvalAdapter(get_parallel_hybrid_service("bm25", "rrf")),
         "Hybrid (Serial)": EvalAdapter(get_serial_hybrid_service())

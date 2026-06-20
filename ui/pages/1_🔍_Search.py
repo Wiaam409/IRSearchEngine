@@ -41,6 +41,8 @@ def perform_search(query: str):
         )
     elif method == "Hybrid Serial":
         result = api_client.search_hybrid_serial(query, top_k, get_setting("hybrid_serial_multiplier"))
+    elif method == "RAG":
+        result = api_client.search_rag(query, top_k)
 
     latency_ms = (time.time() - start_time) * 1000
     
@@ -51,6 +53,9 @@ def perform_search(query: str):
         add_to_history(query, len(results_list), latency_ms, method)
         
         st.success(f"Found {len(results_list)} results in {latency_ms:.0f} ms using {method}")
+        
+        if method == "RAG" and "answer" in result.get("data", {}):
+            st.info(f"🤖 **RAG Answer:** {result['data']['answer']}")
         
         if results_list:
             col1, col2 = st.columns([3, 1])

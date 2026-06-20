@@ -16,3 +16,12 @@ class BeirAdapter:
 
     def load_qrels(self):
         return self.dataset.qrels_iter()
+
+    def get_document_text(self, doc_id: str) -> str:
+        if not hasattr(self, '_docs_store'):
+            self._docs_store = self.dataset.docs_store()
+        try:
+            doc = self._docs_store.get(doc_id)
+            return getattr(doc, 'text', str(doc))
+        except KeyError:
+            return ""
