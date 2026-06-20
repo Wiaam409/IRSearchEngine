@@ -119,3 +119,20 @@ def get_serial_hybrid_service() -> SerialHybridRetrieveUseCase:
     sparse_adapter = RetrieverAdapter(get_bm25_service())
     dense_adapter = RetrieverAdapter(get_dense_service())
     return SerialHybridRetrieveUseCase(sparse_adapter, dense_adapter)
+
+@lru_cache()
+def get_db_store():
+    import os
+    from services.database_service import DatabaseDocumentStore
+    db_path = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")), "documents.db")
+    return DatabaseDocumentStore(db_path)
+
+@lru_cache()
+def get_rag_service():
+    from services.rag_service.application.use_cases import RagUseCase
+    
+    retriever = get_dense_service()
+    doc_store = get_db_store()
+    llm = get_llm_pipeline()
+    
+    return RagUseCase(retriever, doc_store, llm)

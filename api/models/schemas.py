@@ -4,6 +4,8 @@ from pydantic import BaseModel, Field
 class ScoredDocumentResponse(BaseModel):
     doc_id: str
     score: float
+    title: Optional[str] = None
+    text: Optional[str] = None
 
 class BaseAPIResponse(BaseModel):
     status: str = "success"
