@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     
     index_cache_dir: str = "datasets/cache/index"
     embeddings_cache_dir: str = "datasets/cache/embeddings"
-    synonyms_path: str = "datasets/miracl/ar/synonyms.json"
+    synonyms_path: str = "datasets/beir/webis-touche2020/v2/synonyms.json"
 
     class Config:
         env_file = ".env"

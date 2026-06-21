@@ -54,7 +54,15 @@ def get_bm25_service() -> Bm25RankUseCase:
 
 @lru_cache()
 def get_dense_service() -> DenseRetrieveUseCase:
-    model = SentenceTransformerEmbedding()
+    import os
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    local_model_path = os.path.join(project_root, "models", "minilm-local")
+    
+    if os.path.exists(local_model_path):
+        model = SentenceTransformerEmbedding(model_name=local_model_path)
+    else:
+        model = SentenceTransformerEmbedding()
+        
     index = InMemoryVectorIndex()
     index.load(settings.embeddings_cache_dir)
     return DenseRetrieveUseCase(model, index)
@@ -76,8 +84,14 @@ def get_llm_pipeline():
     try:
         from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
         import torch
+        import os
         
-        model_name = "google/flan-t5-base"
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        local_model_path = os.path.join(project_root, "models", "flan-t5-local")
+        
+        model_name = local_model_path if os.path.exists(local_model_path) else "google/flan-t5-base"
+        print(f"Loading LLM from: {model_name}")
+        
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
         

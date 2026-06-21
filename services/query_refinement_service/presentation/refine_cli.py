@@ -9,7 +9,7 @@ from services.query_refinement_service.application.use_cases import RefineQueryU
 
 def main():
     parser = argparse.ArgumentParser(description="Query Refinement CLI Demo")
-    parser.add_argument("--synonyms", type=str, default="datasets/miracl/ar/synonyms.json", help="Path to synonyms JSON file")
+    parser.add_argument("--synonyms", type=str, default="datasets/beir/webis-touche2020/v2/synonyms.json", help="Path to synonyms JSON file")
     parser.add_argument("--spell", action="store_true", help="Enable basic spell checking")
     args = parser.parse_args()
 

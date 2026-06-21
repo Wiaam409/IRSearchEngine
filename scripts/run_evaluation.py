@@ -11,7 +11,8 @@ from services.evaluation_service.domain.models import RelevanceJudgment
 from services.evaluation_service.domain.interfaces import IRetrievalModelAdapter
 from api.dependencies.containers import (
     get_evaluation_service, get_tfidf_service, get_bm25_service,
-    get_dense_service, get_parallel_hybrid_service, get_serial_hybrid_service
+    get_dense_service, get_parallel_hybrid_service, get_serial_hybrid_service,
+    get_refinement_service
 )
 
 class EvalAdapter(IRetrievalModelAdapter):
@@ -47,6 +48,18 @@ class RefinedAdapter(IRetrievalModelAdapter):
         return [(getattr(doc, "doc_id", doc.get("doc_id", "") if isinstance(doc, dict) else ""), 
                  getattr(doc, "score", doc.get("score", 0.0) if isinstance(doc, dict) else 0.0)) for doc in docs]
 
+class TunedAdapter(IRetrievalModelAdapter):
+    def __init__(self, use_case, k1=1.5, b=0.4):
+        self.use_case = use_case
+        self.k1 = k1
+        self.b = b
+        
+    def get_ranked_docs(self, query_id: str, query_text: str, top_k: int):
+        from services.ranking_service.domain.models import Bm25Parameters
+        params = Bm25Parameters(k1=self.k1, b=self.b)
+        result = self.use_case.rank(query_text, top_k=top_k, params=params)
+        return [(getattr(doc, "doc_id", ""), getattr(doc, "score", 0.0)) for doc in result]
+
 def run_evaluation():
     print(f"Running evaluation...")
     adapter = BeirAdapter()
@@ -74,6 +87,7 @@ def run_evaluation():
     models = {
         "TF-IDF": EvalAdapter(get_tfidf_service()),
         "BM25": EvalAdapter(get_bm25_service()),
+        "BM25 (Tuned)": TunedAdapter(get_bm25_service(), k1=1.5, b=0.4),
         "BM25 (Refined)": RefinedAdapter(get_bm25_service(), get_refinement_service()),
         "Embeddings": EvalAdapter(get_dense_service()),
         "Hybrid (RRF)": EvalAdapter(get_parallel_hybrid_service("bm25", "rrf")),
