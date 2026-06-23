@@ -59,12 +59,17 @@ The system uses recognized ground-truth queries (`qrels`) from standard datasets
 
 ### Running the Services
 
-1. **Start the FastAPI Backend Server:**
+1. **Seed the Database:**
+   ```bash
+   python -m scripts.seed_database
+   ```
+
+2. **Start the FastAPI Backend Server:**
    ```bash
    python -m api.main
    ```
 
-2. **Start the Streamlit UI:**
+3. **Start the Streamlit UI:**
    ```bash
    python -m streamlit run ui/app.py
    ```
