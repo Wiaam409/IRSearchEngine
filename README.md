@@ -63,13 +63,17 @@ The system uses recognized ground-truth queries (`qrels`) from standard datasets
    ```bash
    python -m scripts.seed_database
    ```
+2. **build the inverted index:**
+   ```bash
+   python -m scripts.build_index
+   ```   
 
-2. **Start the FastAPI Backend Server:**
+3. **Start the FastAPI Backend Server:**
    ```bash
    python -m api.main
    ```
 
-3. **Start the Streamlit UI:**
+4. **Start the Streamlit UI:**
    ```bash
    python -m streamlit run ui/app.py
    ```
